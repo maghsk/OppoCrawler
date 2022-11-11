@@ -1,0 +1,3 @@
+*.json
+.mypy_cache
+.vscode
