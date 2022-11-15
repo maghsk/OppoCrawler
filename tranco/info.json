@@ -1,0 +1,22 @@
+{
+    "list_id": "Q9PP4",
+    "available": true,
+    "failed": false,
+    "download": "https://tranco-list.eu/download/Q9PP4/1000000",
+    "created_on": "2022-11-14T22:00:06.455446",
+    "configuration": {
+        "startDate": "2022-10-16",
+        "providers": [
+            "alexa",
+            "umbrella",
+            "majestic",
+            "farsight"
+        ],
+        "listPrefix": "full",
+        "isDailyList": true,
+        "endDate": "2022-11-14",
+        "filterPLD": "on",
+        "filterTLD": "false",
+        "combinationMethod": "dowdall"
+    }
+}
