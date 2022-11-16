@@ -1,4 +1,4 @@
-# Scrapy settings for oppo project
+# Scrapy settings for webgl project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -7,15 +7,15 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'oppo'
+BOT_NAME = 'webgl'
 LOG_LEVEL = 'INFO'
 
-SPIDER_MODULES = ['oppo.spiders']
-NEWSPIDER_MODULE = 'oppo.spiders'
+SPIDER_MODULES = ['webgl.spiders']
+NEWSPIDER_MODULE = 'webgl.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'oppo (+http://www.yourdomain.com)'
+#USER_AGENT = 'webgl (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -46,13 +46,13 @@ ROBOTSTXT_OBEY = True
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
-#    'oppo.middlewares.OppoSpiderMiddleware': 543,
+#    'webgl.middlewares.webglSpiderMiddleware': 543,
 #}
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #DOWNLOADER_MIDDLEWARES = {
-#    'oppo.middlewares.OppoDownloaderMiddleware': 543,
+#    'webgl.middlewares.webglDownloaderMiddleware': 543,
 #}
 
 # Enable or disable extensions
@@ -64,8 +64,8 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'oppo.pipelines.OppoPipeline': 300,
-   'oppo.pipelines.MongoPipeline': 400,
+   # 'webgl.pipelines.WebGLPipeline': 300,
+   'webgl.pipelines.MongoPipeline': 400,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -95,5 +95,5 @@ TWISTED_REACTOR = 'twisted.internet.asyncioreactor.AsyncioSelectorReactor'
 
 
 MONGO_URI = 'mongodb://127.0.0.1:27017/'
-MONGO_DATABASE = 'oppo'
+MONGO_DATABASE = 'tranco'
 DUMPDIR = '/home/maghsk/storage/Projects/WebGL Empirical Study/Crawler/output'

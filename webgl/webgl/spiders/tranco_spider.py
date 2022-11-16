@@ -1,21 +1,33 @@
 import scrapy
 import scrapy.selector
+import random
+
+import logging
+
+from pathlib import Path
 
 from scrapy import Request
 from scrapy.http import Response
 from typing import Optional
 
-from oppo.items import HtmlData, JavaScriptData
+from webgl.items import HtmlData, JavaScriptData
 
 from datetime import datetime
 
-class OppoSpider(scrapy.Spider):
-    name = "oppo"
-    start_urls = ['https://www.oppo.com/cn/smartphones/series-find-n/find-n/3d/']
+class TrancoSpider(scrapy.Spider):
+    name = "tranco"
+    # start_urls = ['https://www.oppo.com/cn/smartphones/series-find-n/find-n/3d/']
+    tranco_top1M_csv_path_str = "/home/maghsk/storage/Projects/WebGL Empirical Study/Crawler/tranco/top-1m.csv"
+    max_depth = 3
+    max_width = 7
 
     def start_requests(self):
-        for url in self.start_urls:
-            yield Request(url, callback=self.parse)
+        # tranco_top1M_csv_path = Path(self.tranco_top1M_csv_path_str)
+        # tranco_list: list[str] = [x.strip().split(',')[1] for x in tranco_top1M_csv_path.read_text().strip().splitlines()]
+        tranco_list = [ 'www.oppo.com' ]
+        for url in tranco_list:
+            logging.info(f"seeding {url}")
+            yield Request(url=f"http://{url}", callback=self.parse, meta={"cur_depth": 0})
 
     def parse_js(self, response: Response):
         origin_url: str = response.meta.get('origin_url')
@@ -39,6 +51,7 @@ class OppoSpider(scrapy.Spider):
         )
 
     def parse(self, response: Response):
+        logging.info(f"parsing {response.url}")
         lst = response.xpath('//script')
         js_lst: list[str] = []
         # remote_js_dict: dict[str, Optional[str]] = {}
@@ -66,6 +79,20 @@ class OppoSpider(scrapy.Spider):
             else:
                 js_lst.append(item.get())
 
+        # Expanding
+        next_depth = response.meta.get("cur_depth") + 1
+        if next_depth < self.max_depth:
+            a_set = set(x.attrib.get('href') for x in response.xpath("//a"))
+            a_set = set(x for x in a_set if x and (x.startswith("http") or x[0] == '/'))
+            a_set = set(x if x.startswith("http") else response.urljoin(x) for x in a_set)
+
+            if len(a_set) > 0:
+                expand_list = random.choices(list(a_set), k=min(len(a_set), self.max_width))
+                for url in expand_list:
+                    yield Request(url, callback=self.parse, meta={"cur_depth": next_depth})
+
+
+        # Yielding
         yield HtmlData(
             access_time=datetime.utcnow(),
             url=response.url,

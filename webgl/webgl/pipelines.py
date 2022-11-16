@@ -6,7 +6,7 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
-from oppo.items import *
+from webgl.items import *
 import pymongo
 import json
 from pathlib import Path
@@ -14,7 +14,7 @@ import dataclasses
 import logging
 import cachetools
 
-class OppoPipeline:
+class WebGLPipeline:
     def process_item(self, item, spider):
         if isinstance(item, JavaScriptData):
             return self.process_remote_js(item, spider)
