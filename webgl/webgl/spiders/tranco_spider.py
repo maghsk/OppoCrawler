@@ -18,7 +18,7 @@ from datetime import datetime
 class TrancoSpider(scrapy.Spider):
     name = "tranco"
     # start_urls = ['https://www.oppo.com/cn/smartphones/series-find-n/find-n/3d/']
-    tranco_top1M_csv_path_str = "/home/maghsk/storage/Projects/WebGL Empirical Study/Crawler/tranco/top-1m.csv"
+    tranco_top1M_csv_path_str = "/home/ubuntu/OppoCrawler/tranco/top-1m.csv"
     max_depth = 2
     max_width = 2
     max_retry = 2  # total access := max_retry + 1
@@ -27,21 +27,22 @@ class TrancoSpider(scrapy.Spider):
         super().__init__(name, **kwargs)
 
     def start_requests(self):
-        # tranco_top1M_csv_path = Path(self.tranco_top1M_csv_path_str)
-        # tranco_list: list[str] = [x.strip().split(',')[1] for x in tranco_top1M_csv_path.read_text().strip().splitlines()]
-        tranco_list = ['www.oppo.com']
-        for url in tranco_list:
+        tranco_top1M_csv_path = Path(self.tranco_top1M_csv_path_str)
+        tranco_list: list[str] = [x.strip().split(',') for x in tranco_top1M_csv_path.read_text().strip().splitlines()]
+        # tranco_list = ['www.oppo.com']
+        for idx, url in tranco_list:
             logging.info(f"seeding {url}")
-            yield Request(url=f"http://{url}", callback=self.parse, meta={"cur_depth": 0, "retry": 0})
+            yield Request(url=f"http://{url}", callback=self.parse, meta={"cur_depth": 0, "retry": 0, "idx": int(idx)})
 
     def parse_js(self, response: Response):
         if response.status != 200:
             if response.meta["retry"] < self.max_retry:
                 yield Request(url=response.url, callback=self.parse_js,
-                              meta={"cur_depth": response.meta["cur_depth"], "retry": response.meta["retry"] + 1})
+                              meta={"cur_depth": response.meta["cur_depth"], "retry": response.meta["retry"] + 1, "idx": response.meta['idx']})
             else:
                 yield JavaScriptData(
                     access_time=None,
+                    idx=response.meta['idx'],
                     url=response.url,
                     code=None,
                     lit_used_getcontext=None,
@@ -59,6 +60,7 @@ class TrancoSpider(scrapy.Spider):
 
         yield JavaScriptData(
             access_time=datetime.utcnow(),
+            idx=response.meta['idx'],
             url=response.url,
             code=code,
             lit_used_getcontext=code.find("getContext") != -1,
@@ -73,9 +75,10 @@ class TrancoSpider(scrapy.Spider):
         if response.status != 200:
             if response.meta["retry"] < self.max_retry:
                 yield Request(url=response.url, callback=self.parse_js,
-                              meta={"cur_depth": response.meta["cur_depth"], "retry": response.meta["retry"] + 1})
+                              meta={"cur_depth": response.meta["cur_depth"], "retry": response.meta["retry"] + 1, "idx": response.meta['idx']})
             else:
                 yield HtmlData(
+                    idx=response.meta['idx'],
                     url=response.url,
                     access_time=None,
                     js_code_list=None,
@@ -104,7 +107,7 @@ class TrancoSpider(scrapy.Spider):
                 yield scrapy.Request(
                     url=url,
                     callback=self.parse_js,  # lambda x: js_lst.append(x.body),
-                    meta={'origin_url': response.url, 'retry': 0, },
+                    meta={'origin_url': response.url, 'retry': 0, "idx": response.meta['idx']},
                     priority=10,
                 )
             else:
@@ -120,12 +123,13 @@ class TrancoSpider(scrapy.Spider):
             if len(a_set) > 0:
                 expand_list = random.choices(list(a_set), k=min(len(a_set), self.max_width))
                 for url in expand_list:
-                    yield Request(url, callback=self.parse, meta={"cur_depth": next_depth, "retry": 0})
+                    yield Request(url, callback=self.parse, meta={"cur_depth": next_depth, "retry": 0, "idx": response.meta['idx']})
 
         # Yielding
         yield HtmlData(
             access_time=datetime.utcnow(),
             url=response.url,
+            idx=response.meta['idx'],
             js_code_list=js_lst,
             remote_js_url_list=remote_js_url_list,
             lit_used_getcontext=any(code.find("getContext") != -1 for code in js_lst),
