@@ -6,7 +6,7 @@
 import scrapy
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 @dataclass
 class JavaScriptData:
@@ -31,7 +31,7 @@ class JavaScriptData:
 class HtmlData:
     url: str
     access_time: Optional[datetime]
-    js_code_list: Optional[list[str]]
-    remote_js_url_list: Optional[list[str]]
+    js_code_list: Optional[List[str]]
+    remote_js_url_list: Optional[List[str]]
     lit_used_webgl: Optional[bool]
     lit_used_getcontext: Optional[bool]
