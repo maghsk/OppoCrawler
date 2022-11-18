@@ -18,7 +18,7 @@ from scrapy.exporters import JsonLinesItemExporter
 
 
 class WebGLPipeline:
-    OUTPUT_BASE_PATH = Path('/home/maghsk/storage/Projects/WebGL Empirical Study/Crawler/output/')
+    OUTPUT_BASE_PATH = Path('/home/ec2-user/OppoCrawler/output')
 
     def __init__(self):
         self.js_fp = None
@@ -33,6 +33,7 @@ class WebGLPipeline:
             return self.process_html(item, spider)
 
     def open_spider(self, spider):
+        self.OUTPUT_BASE_PATH.mkdir(parents=True, exist_ok=True)
         self.html_fp = open(self.OUTPUT_BASE_PATH / 'simplified_html.json', 'wb')
         self.js_fp = open(self.OUTPUT_BASE_PATH / 'simplified_js.json', 'wb')
 
