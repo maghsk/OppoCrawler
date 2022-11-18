@@ -6,57 +6,60 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
-from webgl.items import *
+from .items import *
 import pymongo
 import json
-from pathlib import Path
 import dataclasses
 import logging
 import cachetools
+from pathlib import Path
+
+from scrapy.exporters import JsonLinesItemExporter
+
 
 class WebGLPipeline:
+    OUTPUT_BASE_PATH = Path('/home/maghsk/storage/Projects/WebGL Empirical Study/Crawler/output/')
+
+    def __init__(self):
+        self.js_fp = None
+        self.html_fp = None
+        self.js_exporter = None
+        self.html_exporter = None
+
     def process_item(self, item, spider):
         if isinstance(item, JavaScriptData):
-            return self.process_remote_js(item, spider)
+            return self.process_js(item, spider)
         elif isinstance(item, HtmlData):
-            return self.process_inner_js(item, spider)
+            return self.process_html(item, spider)
 
-    def process_remote_js(self, item: JavaScriptData, spider):
+    def open_spider(self, spider):
+        self.html_fp = open(self.OUTPUT_BASE_PATH / 'simplified_html.json', 'wb')
+        self.js_fp = open(self.OUTPUT_BASE_PATH / 'simplified_js.json', 'wb')
+
+        self.html_exporter = JsonLinesItemExporter(
+            self.html_fp,
+            fields_to_export=['access_time', 'url', 'lit_used_webgl', 'lit_used_getcontext',
+                              'remote_js_url_list'])
+
+        self.js_exporter = JsonLinesItemExporter(
+            self.js_fp,
+            fields_to_export=['access_time', 'url', 'lit_used_webgl', 'lit_used_getcontext'])
+
+    def close_spider(self, spider):
+        self.html_exporter.finish_exporting()
+        self.js_exporter.finish_exporting()
+
+        self.html_fp.close()
+        self.js_fp.close()
+
+    def process_js(self, item: JavaScriptData, spider):
+        self.js_exporter.export_item(item)
         return item
-    
-    def process_inner_js(self, item: HtmlData, spider):
+
+    def process_html(self, item: HtmlData, spider):
+        self.html_exporter.export_item(item)
         return item
 
-# class FileSystemPipeline:
-#     def __init__(self, dumpdir):
-#         self.dumpdir = dumpdir
-#         self.path = Path(self.dumpdir)
-
-#     @classmethod
-#     def from_crawler(cls, crawler):
-#         return cls(
-#             dumpdir=crawler.settings.get('DUMPDIR'),
-#         )
-    
-#     def process_item(self, item, spider):
-#         if isinstance(item, JavaScriptData):
-#             return self.process_remote_js(item, spider)
-#         elif isinstance(item, HtmlData):
-#             return self.process_inner_js(item, spider)
-
-#     def process_remote_js(self, item: JavaScriptData, spider):
-#         target = self.path / item.origin_url / item.name
-#         target.parent.mkdir(parents=True, exist_ok=True)
-#         with target.open('w') as fp:
-#             json.dump(dataclasses.asdict(item.js), fp)
-#         return item
-    
-#     def process_inner_js(self, item: HtmlData, spider):
-#         target = self.path / item.url / 'info.json'
-#         target.parent.mkdir(parents=True, exist_ok=True)
-#         with target.open('w') as fp:
-#             json.dump(dataclasses.asdict(item), fp)
-#         return item
 
 class MongoPipeline:
     js_collection_name = "js_col"
@@ -87,7 +90,7 @@ class MongoPipeline:
 
     def close_spider(self, spider):
         self.client.close()
-    
+
     def process_item(self, item, spider):
         if isinstance(item, JavaScriptData):
             return self.hyd_process(item, self.js_col, self.js_cache)
@@ -98,11 +101,10 @@ class MongoPipeline:
 
     def hyd_process(self, item, col, cache):
         in_cache = item.url in cache
-        
+
         if (not in_cache) and (col.find_one({"url": item.url}) is None):
             col.insert_one(dataclasses.asdict(item))
         else:
             logging.warning(f"Duplicated item, skip storing. URL: {item.url}. In_Cache: {in_cache}.")
         cache[item.url] = True
         return item
-

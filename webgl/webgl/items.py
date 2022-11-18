@@ -6,14 +6,15 @@
 import scrapy
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Optional
 
 @dataclass
 class JavaScriptData:
-    access_time: datetime
     url: str
-    code: str
-    lit_used_webgl: bool
-    lit_used_getcontext: bool
+    access_time: Optional[datetime]
+    code: Optional[str]
+    lit_used_webgl: Optional[bool]
+    lit_used_getcontext: Optional[bool]
 
     # @staticmethod
     # def from_url_str(url: str, code: str):
@@ -28,9 +29,9 @@ class JavaScriptData:
 
 @dataclass
 class HtmlData:
-    access_time: datetime
     url: str
-    js_code_list: list[str]
-    remote_js_url_list: list[str]
-    lit_used_webgl: bool
-    lit_used_getcontext: bool
+    access_time: Optional[datetime]
+    js_code_list: Optional[list[str]]
+    remote_js_url_list: Optional[list[str]]
+    lit_used_webgl: Optional[bool]
+    lit_used_getcontext: Optional[bool]

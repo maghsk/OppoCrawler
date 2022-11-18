@@ -64,9 +64,11 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   # 'webgl.pipelines.WebGLPipeline': 300,
-   'webgl.pipelines.MongoPipeline': 400,
+   'webgl.pipelines.WebGLPipeline': 300,
+   # 'webgl.pipelines.MongoPipeline': 400,
 }
+
+# FEED_EXPORT_FIELDS = ['access_time', 'url', 'lit_used_webgl', 'lit_used_getcontext', 'remote_js_url_list']
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
