@@ -1,6 +1,12 @@
 *.json
+*.zst
+*.log
+*.tar*
+
+
 !tranco/info.json
 
 .mypy_cache
 .vscode
 __pycache__
+output/url_list.txt
