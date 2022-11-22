@@ -18,7 +18,7 @@ from scrapy.exporters import JsonLinesItemExporter
 
 
 class WebGLPipeline:
-    OUTPUT_BASE_PATH = Path('/home/ec2-user/OppoCrawler/output')
+    OUTPUT_BASE_PATH = Path('/home/ubuntu/OppoCrawler/output')
 
     def __init__(self):
         self.js_fp = None
@@ -39,12 +39,12 @@ class WebGLPipeline:
 
         self.html_exporter = JsonLinesItemExporter(
             self.html_fp,
-            fields_to_export=['access_time', 'url', 'lit_used_webgl', 'lit_used_getcontext',
+            fields_to_export=['access_time', 'idx', 'url', 'lit_used_webgl', 'lit_used_getcontext', 
                               'remote_js_url_list'])
 
         self.js_exporter = JsonLinesItemExporter(
             self.js_fp,
-            fields_to_export=['access_time', 'url', 'lit_used_webgl', 'lit_used_getcontext'])
+            fields_to_export=['access_time', 'idx', 'url', 'lit_used_webgl', 'lit_used_getcontext'])
 
     def close_spider(self, spider):
         self.html_exporter.finish_exporting()

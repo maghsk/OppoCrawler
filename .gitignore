@@ -10,3 +10,4 @@
 .vscode
 __pycache__
 output/url_list.txt
+output/scrapy-info.log
