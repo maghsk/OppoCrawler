@@ -2,7 +2,7 @@
 *.zst
 *.log
 *.tar*
-
+*.gz
 
 !tranco/info.json
 
